@@ -107,7 +107,7 @@ def mark_purchased(list_id, item_id):
     data = request.get_json() or {}
     user_id = data.get("user_id")
     if not user_id:
-        return jsonify({"error": "Missing required field: user_id"}), 400
+        return jsonify({"error": "Missing required field: user_id"}), 404
 
     try:
         item = list_service.mark_purchased(
@@ -118,3 +118,23 @@ def mark_purchased(list_id, item_id):
         return jsonify(item.to_dict()), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+
+
+@lists_bp.route("/<list_id>/purchase-all", methods=["POST"])
+def purchase_all(list_id):
+    """
+    Mark every item in a grocery list as purchased.
+
+    Expected JSON body:
+        user_id (str, required) — the user performing the purchase
+    """
+    data = request.get_json() or {}
+    user_id = data.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Missing required field: user_id"}), 400
+
+    try:
+        purchased = list_service.purchase_all_items(list_id, user_id)
+        return jsonify({"purchased": purchased}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
