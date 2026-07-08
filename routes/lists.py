@@ -107,7 +107,7 @@ def mark_purchased(list_id, item_id):
     data = request.get_json() or {}
     user_id = data.get("user_id")
     if not user_id:
-        return jsonify({"error": "Missing required field: user_id"}), 404
+        return jsonify({"error": "Missing required field: user_id"}), 400
 
     try:
         item = list_service.mark_purchased(
