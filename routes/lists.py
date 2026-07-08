@@ -117,7 +117,12 @@ def mark_purchased(list_id, item_id):
         )
         return jsonify(item.to_dict()), 200
     except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+        message = str(e)
+        if "already marked as purchased" in message:
+            return jsonify({"error": message}), 409
+        if "not found" in message:
+            return jsonify({"error": message}), 404
+        return jsonify({"error": message}), 400
 
 
 @lists_bp.route("/<list_id>/purchase-all", methods=["POST"])
