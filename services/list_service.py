@@ -48,6 +48,41 @@ def create_list(name: str, created_by: str, is_shared: bool = False) -> GroceryL
     return grocery_list
 
 
+def get_list_stats(list_id: str) -> dict:
+    """
+    Compute summary statistics for a grocery list.
+
+    Returns:
+        A dictionary with total item counts, purchased counts, remaining counts,
+        and a per-category breakdown.
+
+    Raises:
+        ValueError: If the list does not exist.
+    """
+    grocery_list = db.session.get(GroceryList, list_id)
+    if not grocery_list:
+        raise ValueError(f"List {list_id!r} not found")
+
+    items = Item.query.filter_by(list_id=list_id).all()
+
+    total = len(items)
+    purchased = sum(1 for item in items if item.is_purchased)
+    remaining = total - purchased
+
+    by_category = {}
+    for item in items:
+        category = item.category or "uncategorized"
+        by_category[category] = by_category.get(category, 0) + 1
+
+    return {
+        "list_id": list_id,
+        "total_items": total,
+        "purchased": purchased,
+        "remaining": remaining,
+        "by_category": by_category,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Item operations
 # ---------------------------------------------------------------------------
